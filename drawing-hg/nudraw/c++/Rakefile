@@ -1,0 +1,40 @@
+require 'rake/clean'
+require 'rake/loaders/makefile'
+
+SRC = FileList["*.cpp"]
+ALL_SRC = FileList["*.cpp", "*.hpp"]
+OBJ = SRC.ext("o")
+
+EXE = "nudraw"
+
+CLEAN.include('*.o')
+CLOBBER.include(EXE)
+
+CC="g++"
+CFLAGS="-Wall -O -pipe -I/sw/include" # include fink libraries
+
+file EXE => OBJ do
+  sh "#{CC} #{CFLAGS} -o #{EXE} #{OBJ}"
+end
+
+# let makedepend figure out the #include mess
+# the import command looks for a task with matching name and executes it
+file ".depends.mf" => ALL_SRC do |t|
+  sh "makedepend -f- #{t.prerequisites} > #{t.name} 2>/dev/null"
+end
+import ".depends.mf"
+
+# makedepend's output only includes the .hpp files, so we still need to add dependencies on the .cpp files
+# to all the .o's. However, using a rule won't work because rules only apply as a fallback if no tasks
+# can be found, so we do it manually.
+OBJ.each do |o|
+  file o => o.ext('.cpp') do |t|
+    sh "#{CC} #{CFLAGS} -c -o #{t.name} #{t.name.ext('cpp')}"
+  end
+end
+
+#  sh "#{CC} #{CFLAGS} -c -o #{t.name} #{t.source}"
+
+task :default => ["#{EXE}"]
+task :depend => [".depends.mf"]
+

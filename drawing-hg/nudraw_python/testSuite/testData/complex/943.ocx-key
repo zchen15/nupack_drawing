@@ -1,0 +1,25 @@
+% NUPACK 2.1
+% Output from program complexes
+% Calculation started on: Mon Nov 17 09:43:53 2008 PST
+%
+% Command: /home/conrads/svn/nupack/website/branches/edit-structures/work/partition/complexes -mfe -material RNA_mfold2.3 -dangles 1 -pairs -progress -ordered -T 37.0 943 
+% Maximum complex size to enumerate: 2
+% Number of complexes from enumeration: 5
+% Additional complexes from .list file: 0
+% Total number of permutations to calculate: 5
+% Paramaters used: RNA (Mfold 2.3)
+% Dangles setting: 1
+% Temperature (C): 37.0
+%
+% Do not change the comments below this line, as they may be read by other programs!
+%
+% Number of strands: 2
+% id sequence
+%  1 tgctatcgatctagctgactacttacgtgactgctgac
+%  2 tgctatcgatctagtgctatcgatctagctgactacttacgtgactgctgacctgactacttacgtgactgctgac
+% T = 37.0
+1	1	1	
+2	1	2	
+3	1	1	1	
+4	1	1	2	
+5	1	2	2	

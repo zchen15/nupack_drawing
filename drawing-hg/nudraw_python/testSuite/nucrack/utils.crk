@@ -1,0 +1,71 @@
+# Utilities for argument generation
+import crack.cont.array Array;
+import crack.io FStr;
+import crack.strutil StringArray;
+import crack.cont.hashmap OrderedHashMap, HashMap;
+import crack.enc.json JsonFormatter;
+
+class optInfo {
+  String sequence, domains, domainnames;
+  oper init(String sequence0, String domains0, String domainnames0):
+    sequence=sequence0, domains=domains0, domainnames=domainnames0 {
+  }
+}
+
+#-------------------------------------------------------------------------------
+optInfo generateSequence(String struc){
+  StringArray letters = ["A", "C", "G", "T"];
+  StringArray domains=["A", "C", "E", "B", "D", "F"];
+
+  ll := letters.count();
+  lc := domains.count();
+  ls := struc.size;
+  StringArray seq = {};
+  StringArray cols = {};
+  
+  uint j=0;
+  for (uint i=0; i < ls; i++){
+    if (struc[i] == b'+') {
+      seq.append("+");
+      cols.append("+");
+    }
+    else{
+      seq.append(letters[j%ll]);
+      cols.append(FStr() `$(j%lc)`);
+      j++;
+    }
+  }
+
+  return optInfo(seq.join(""), cols.join(","), domains.join(","));
+}
+
+#-------------------------------------------------------------------------------
+# Create a string from one string option
+void JsonOptionsStringString(HashMap[String, String] map, JsonFormatter fmt){
+        fmt.write('{');
+        bool first = true;
+        for (item :in map){
+            if (!first) fmt.write(', ');
+            else first = false;
+            fmt `$(item.key)`;
+            fmt.write(":");
+            fmt `$(item.val)`;
+        }
+        fmt.write('}');
+}
+
+
+#-------------------------------------------------------------------------------
+# Create a string from the options map
+void JsonOptionsStringMap(HashMap[String, HashMap[String, String]] options, JsonFormatter fmt){
+        fmt.write('{');
+        bool first = true;
+        for (item :in options){
+            if (!first) fmt.write(', ');
+            else first = false;
+            fmt `$(item.key)`;
+            fmt.write(":");
+            JsonOptionsStringString(item.val, fmt);
+        }
+        fmt.write('}');
+}

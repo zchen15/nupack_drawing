@@ -1,0 +1,1 @@
+will now use ppairs output from multistatedesign to plot pair probabilities, as long as there is some nominal string in sequence

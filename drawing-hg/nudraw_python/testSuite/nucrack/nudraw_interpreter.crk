@@ -1,0 +1,31 @@
+# An intepreter instance that manages a nudraw.py instance that listens on stdin
+
+import crack.cont.array Array;
+import crack.io cout, FileHandle, FStr;
+import crack.logger Logger;
+import crack.strutil StringArray;
+import whip.interpreter SimpleInterpreter;
+
+StringArray nudrawInit = ["/usr/bin/python",  "nudraw.py",  "--optionsjson"];
+StringArray nudrawStatus = [ null, null, null, null, null, null];
+
+class NudrawInterpreter : SimpleInterpreter {
+  oper init() :
+    SimpleInterpreter(nudrawInit, nudrawStatus)
+  {}
+
+  oper init(Logger newlog) :
+    SimpleInterpreter(nudrawInit, nudrawStatus, newlog)
+  {}
+
+  Array[FileHandle] getFileHandles(){
+    if (!_pollables && _pipes) {
+      _statusFD = _process.getErrFD();
+      _pollables = Array[FileHandle]![_pipes[2]];
+    }
+    log.debug(FStr() `getFileHandles: _pollables=$_pollables`);
+    return _pollables;
+  }
+
+}
+

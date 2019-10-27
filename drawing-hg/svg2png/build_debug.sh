@@ -1,0 +1,2 @@
+cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_VERBOSE_MAKEFILE=ON .
+make

@@ -1,0 +1,207 @@
+// Test suite using crack Interpreter class
+import crack.cmdline CmdOptions, Option, CMD_STR, CMD_INT, CMD_FLOAT,
+   CMD_BOOL;
+import crack.cont.array Array;
+import crack.cont.hashmap OrderedHashMap, HashMap;
+import crack.enc.json JsonFormatter;
+import crack.ffmt.ini iniParser;
+import crack.io FStr, cerr, cout, FDWriter, StringWriter, StringFormatter;
+import crack.lang Formatter, Exception;
+import crack.logger cerrLogger, DEBUG, INFO, ERROR;
+import crack.net Poller, POLLIN, POLLOUT;
+import crack.strutil StringArray;
+import crack.sys argv;
+import crack.time seconds;
+import nucrack.nudraw_interpreter NudrawInterpreter;
+import nucrack.utils generateSequence, JsonOptionsStringMap;
+import whip.interpreter INTP_DONE, INTP_BUSY, INTP_ERROR, INTP_READY,
+                        INTP_SUBMIT, Interpreter;
+import whip.sockserver InterpreterContainer;
+
+
+// Command line arguments setup
+CmdOptions options = [Option("help",   "h", "Show this help message", "f", CMD_BOOL),
+                      Option("sections", "s", "A comma separated list of sections to process", "", CMD_STR),
+                      Option("listsections",   "l", "List sections only, don't run", "f", CMD_BOOL),
+                      Option("cpus",   "c", "CPUs", "1", CMD_INT)];
+
+options.parse(argv, false);
+
+// Parameter setup
+onlysections := options.getString("sections");
+listsections := options.getBool("listsections");
+HashMap[String, int] sectionMap = {};
+limitsections := false;
+if (onlysections.size > 0){
+  secnames := onlysections.split(b",");
+  for (secname :in secnames){
+    s := secname.strip();
+    if (s.size > 0)
+      sectionMap[s] = 1;
+  }
+
+  if (sectionMap.count() == 0)
+    throw Exception("section list must be a comma-separated list");
+  limitsections = true;
+}
+
+cerrLogger.setLevel(DEBUG);
+delay := seconds(1);
+
+// Set up option variations
+Array[String] optnames = [
+              'colorbar',
+              'filecounter2d',
+              'colorbarspace',
+              'colorbaseprob',
+              'drawbases',
+              'colorstrands',
+              'drawbasenumbers',
+              'colorbaseid',
+              'baseidbar',
+              'drawbaseticks',
+              'colordomains',
+              'labeldomains',
+              'domaincolors',
+              'domainnames'];
+
+Array[String] optvalues=[
+              '1,0,1,0,0,0',
+              '0,1,2,3,4,5,6',
+              '1,1,1,1,1,1,1 ',
+              '1,0,1,0,0,0,0',
+              '0,1,1,0,0,1,0',
+              '0,0,0,0,1,0,0',
+              '1,1,1,1,1,0,1',
+              '0,0,0,0,1,1,1',
+              '0,0,0,0,1,1,1 ',
+              '0,0,0,0,0,0,1 ',
+              '0,0,0,0,0,1,0 ',
+              '0,0,0,0,0,1,0 ',
+              'ff0000,ff9900,00ff00,00ff99,0000ff,9900ff',
+              'a,a*,b,b*,c,c*'];
+
+// Read test specs
+sections := iniParser.parseFile("testSuite/testData/structure/teststrands.ini");
+
+if  (options.getBool("help")){
+   options.printUsage(FStr() `Usage: $(argv[0]) [OPT1] [OPT2] ...\n`);
+}
+else if (listsections){
+  for (section :in sections)
+    cout `$(section.key)\n`;
+}
+else if (sections is null)
+  throw Exception("No test sections found in .INI file");
+else {
+
+  sw := StringWriter();
+  jfmt := JsonFormatter(sw);
+  prefix := "testSuite/testResults/structure";
+  int status, oldstatus;
+  fstr := FStr();
+
+// Create option strings, aka 'scripts'
+  HashMap[String, String] options = {};
+  uint i=0;
+  for (name :in optnames){
+    options[name] = optvalues[i++];
+  }
+
+  HashMap[String, HashMap[String, String]] main = {};
+  main["options"] = options;
+
+  StringArray scripts={};
+
+  // Create scripts
+  for (section :in sections){
+    if (limitsections && !sectionMap.contains(section)) continue;
+
+    for (structure :in section.val){
+      if (structure.key == "comment"){
+        continue;
+      }
+
+      addOpts := generateSequence(structure.val);
+      options["structure"] = structure.val;
+      options["sequence"] = addOpts.sequence;
+      options["domains"] = addOpts.domains;
+
+      options["jsonout"] = FStr() `$prefix/$(section.key)/structure_$(structure.key)_%s.json`;
+      options["pngfile2d"] = FStr() `$prefix/$(section.key)/structure_$(structure.key)_%s.png`;
+      options["svgfile2d"] = FStr() `$prefix/$(section.key)/structure_$(structure.key)_%s.png`;
+      sw.size=0;
+      JsonOptionsStringMap(main, jfmt);
+      jfmt.write("\n\n");
+      scripts.append(sw.string());
+    }
+  }
+
+  // Declarations
+  OrderedHashMap[int, Interpreter] ready = {}, busy = {}, changes;
+  Interpreter intp; // temp
+
+  // Parameter setup
+  numCPUs := options.getInt("cpus");
+
+  server := InterpreterContainer();
+
+  // Create interpreters and add them to server to track
+  for (uint i=0; i<numCPUs; i++){
+    intp := NudrawInterpreter(cerrLogger);
+    intp.setMaxCmds(5);
+    server.add(intp, intp.getFileHandles());
+    ready[intp.id()] = intp;
+  }
+
+  // intialize changes for main loop
+  changes = server.processOnce(delay);
+
+  // Main loop
+  while (busy || scripts){
+    while (!changes && !ready) // Idle wait
+      changes = server.processOnce(delay);
+
+    // process interpreters that changed
+    while (changes){
+      item := changes.popHead();
+      intp = item.val;
+
+      oldstatus = intp.status;
+
+      // process all state changes
+      status = intp.getStatusChange(); // returns -1 if none
+      while (status >= 0) {
+        cerrLogger.debug(fstr `ready = $ready`);
+        cerrLogger.debug(fstr `busy = $busy`);
+        if (status == INTP_BUSY) { // READY -> BUSY , should be redundant
+          busy.append(item.key, item.val);
+        }
+        else if (status == INTP_DONE || status == INTP_ERROR) { // BUSY -> DONE/ERROR
+          busy.deleteKey(item.key); // error here is a script error
+        }
+        else if (status == INTP_READY && oldstatus != INTP_SUBMIT){ // DONE/ERROR -> READY
+          ready.append(item.key, item.val); // when intp becomes ready after
+        }                                   // exec, not after startup
+
+      // Set status
+      if (status != intp.status)
+        oldstatus = intp.status;
+
+        intp.status = status;
+        status = intp.getStatusChange();
+      }
+    }
+
+    // We havesome interpreters ready
+    while (ready && scripts){
+      cerrLogger.debug(fstr `ready = $ready`);
+      item := ready.popTail();
+      intp = item.val;
+
+      if (intp.exe(scripts.pop()) == INTP_ERROR)
+        throw Exception(FStr() `Could not submit script to $intp`);
+      else busy.append(item.key, item.val);
+    }
+  }
+}

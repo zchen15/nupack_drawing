@@ -1,0 +1,46 @@
+% NUPACK 2.1
+% Output from program mfe
+% Calculation started on: Thu Oct  9 08:13:18 2008
+% Command: /home/svn.nupack.org/zadeh/svn/nupack/website/branches/edit-structures/work/partition/mfe -material RNA_mfold2.3 -dangles 1 -T 0.0 834_0 
+% Sequence:  agagacatcagctagcattcgatcagcatcgatcgagcagagagctacgatcgatcgattgagatatatatatatatagccggcgccgcg
+% v(pi): 1
+% RNA parameters (Mfold 2.3)
+% Dangles setting: 1
+% Temperature (C): 0.0
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %
+90
+-57.590
+.((....)).(((.((..((((((.(.(((((((((((.....))).))))))))))))))).(((((....))))).)).)))......
+2	9
+3	8
+11	84
+12	83
+13	82
+15	80
+16	79
+19	62
+20	61
+21	60
+22	59
+23	58
+24	57
+26	56
+28	55
+29	54
+30	53
+31	52
+32	51
+33	50
+34	49
+35	48
+36	46
+37	45
+38	44
+64	77
+65	76
+66	75
+67	74
+68	73
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %
+

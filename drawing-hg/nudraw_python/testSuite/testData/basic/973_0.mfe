@@ -1,0 +1,51 @@
+% NUPACK 2.1
+% Output from program mfe
+% Calculation started on: Mon Nov 24 09:31:28 2008
+% Command: /home/conrads/svn/nupack/website/branches/edit-structures/work/partition/mfe -material DNA_mfold2.3 -dangles 1 -T 37.0 973_0 
+% Sequence:  CGCCGAAAACGTGCGAAGCACGAAACGGGCGCAGCCCGAAACCGCGAAGTCAGGAAAGCGGCCAAGCCGCAAGCGCCGGAACGGCGAAACCTGAAAACGCGGAAACGGCG
+% v(pi): 1
+% DNA parameters (Mfold 2.3)
+% Dangles setting: 1
+% Temperature (C): 37.0
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %
+110
+-41.750
+(((((....(((((...)))))...(((((...)))))...(((((...(((((...(((((...)))))...(((((...)))))...)))))...)))))...)))))
+1	110
+2	109
+3	108
+4	107
+5	106
+10	22
+11	21
+12	20
+13	19
+14	18
+26	38
+27	37
+28	36
+29	35
+30	34
+42	102
+43	101
+44	100
+45	99
+46	98
+50	94
+51	93
+52	92
+53	91
+54	90
+58	70
+59	69
+60	68
+61	67
+62	66
+74	86
+75	85
+76	84
+77	83
+78	82
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% %
+

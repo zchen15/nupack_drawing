@@ -1,0 +1,33 @@
+% NUPACK 2.1
+% Output from program pairs
+% Calculation started on: Mon Dec  1 09:38:55 2008
+% Command: /home/conrads/svn/nupack/website/branches/edit-structures/work/partition/pairs -material RNA_mfold2.3 -dangles 1 -T 37.0 997_0 
+% Only pair probabilities above 0.001 are included.
+% Sequence:  acgtagaccgaca
+% v(pi): 1
+% RNA parameters (Mfold 2.3)
+% Dangles setting: 1
+% Temperature (C): 37.0
+% Free energy: -1.37859061e+00 kcal/mol
+
+13
+1 14 1.0000e+00
+2 6 1.8490e-03
+2 10 1.1625e-01
+2 14 8.8190e-01
+3 9 1.1476e-01
+3 12 7.5213e-01
+3 14 1.3220e-01
+4 10 1.1364e-03
+4 11 7.5144e-01
+4 14 2.4726e-01
+5 14 1.0000e+00
+6 12 1.1040e-02
+6 14 9.8711e-01
+7 14 1.0000e+00
+8 14 9.9909e-01
+9 14 8.8524e-01
+10 14 8.8261e-01
+11 14 2.4856e-01
+12 14 2.3683e-01
+13 14 9.9984e-01
