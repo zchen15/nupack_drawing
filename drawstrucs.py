@@ -60,29 +60,21 @@ def run_nudraw(fname, colors = {}):
         domain_lens[dname] = len(domain['sequence'])
         
         # default if there is custom color for the domain
-        if dname in colors.keys():
-            domain_colors[dname] = colors[dname]
-            domain_inds[dname] = 2*j
-            domain_colorlist.append(domain_colors[dname])
-            domain_namelist.append(dname)
-    
-            if dname[-1]!='*':
-                domain_colors[dname + '*'] = colors[dname] # set the complement domain the same color            
-                domain_inds[dname + '*'] = 2*j + 1
-                domain_colorlist.append(domain_colors[dname + '*'])
-                domain_namelist.append(dname + '*')
-            j += 1
-        else:
-            if dname[-1] != '*':
+        if dname[-1] != '*':
+            if dname in colors.keys():
+                domain_colors[dname] = colors[dname]
+                domain_colors[dname + '*'] = colors[dname] # set complement domain as same color
+            else:
                 domain_colors[dname] = main_colors[j % len(main_colors)]
                 domain_colors[dname + '*'] = comp_colors[j % len(comp_colors)]
-                domain_inds[dname] = 2*j
-                domain_inds[dname + '*'] = 2*j + 1
-                j += 1
-                domain_colorlist.append(domain_colors[dname])
-                domain_colorlist.append(domain_colors[dname + '*'])
-                domain_namelist.append(dname)
-                domain_namelist.append(dname + '*')
+
+            domain_inds[dname] = 2*j
+            domain_inds[dname + '*'] = 2*j + 1
+            j += 1
+            domain_colorlist.append(domain_colors[dname])
+            domain_colorlist.append(domain_colors[dname + '*'])
+            domain_namelist.append(dname)
+            domain_namelist.append(dname + '*')
 
     # parse the strand info
     strands = {}
@@ -174,7 +166,7 @@ def main(argv):
     # parse input colors
     colors = parse_domain_colors(colors)
     print('Input files: ',files)
-    print('Domain colors: ',colors)
+    print('Custom domain colors: ',colors)
 
     # no input files specified
     if len(files) == 0:
