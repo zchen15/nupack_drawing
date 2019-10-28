@@ -166,7 +166,9 @@ def main(argv):
     # parse input colors
     colors = parse_domain_colors(colors)
     print('Input files: ',files)
-    print('Custom domain colors: ',colors)
+    print('Custom domain colors: ')
+    for i in colors.keys():
+        print(i, colors[i])
 
     # no input files specified
     if len(files) == 0:
