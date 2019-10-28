@@ -5,7 +5,6 @@
 
 import subprocess
 import os
-import os.path
 import json
 import sys
 import matplotlib
@@ -131,11 +130,19 @@ def run_nudraw(fname, colors = {}):
                 '--svgfile2d={}'.format(results_svg),
                 ]
         
+        # generate structure in 2D with labeled domains
         colored_domains = full_command + specification_options
+        print('\nDrawing secondary structure ',colored_domains[-1].split('--svgfile2d=')[1])
         subprocess.call(colored_domains)
-
+        
+        # generate ppairs diagram in 2D
         prob_results = full_command + results_options
-        subprocess.call(prob_results)
+        # check if ppairs file exists
+        if os.path.exists(prob_results[5].split('--probfile=')[1]):
+            print('\nDrawing ppairs structure ',prob_results[-1].split('--svgfile2d=')[1])
+            subprocess.call(prob_results)
+        else:
+            print(prob_results[5].split('--probfile=')[1],' not found')
 
 def help():
     print('''
